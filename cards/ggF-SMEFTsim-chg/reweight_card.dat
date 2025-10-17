@@ -1,0 +1,12 @@
+change rwgt_dir rwgt
+change process p p > h j j / j2 l+ l- vl vl~ h a W+ W- Z NP<=1
+launch --rwgt_name=rw0000
+set smeftcpv 3 0
+launch --rwgt_name=rw0001
+set smeftcpv 3 0.005
+launch --rwgt_name=rw0002
+set smeftcpv 3 0.01
+launch --rwgt_name=rw0003
+set smeftcpv 3 0.015
+launch --rwgt_name=rw0004
+set smeftcpv 3 0.02

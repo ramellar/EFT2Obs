@@ -432,6 +432,35 @@ The following limitations currently apply. Links to GitHub issues indicate which
  - Processes are limited to one new-physics vertex (i.e. `NP <= 1` syntax required in the process definition).
  - Some incompatibilities with the CMSSW environment have been reported. For now this should not be set when running EFT2Obs.
 
+## Reading LHE files 
+
+If the LHE files are directly saved, in order to plots from these, some dedicated scripts can be found in `EFT2Obs/scripts`. These use the [lhereader](https://pypi.org/project/lhereader/) package and to run them it is necessary to install an python environment:
+
+```
+virtualenv --python=$(which python3) .venv
+source ./.venv/bin/activate
+pip install lhereader
+```
+Once this step has finished and lhereader is installed (it is possible that a few warnings or warnings appear, but if the package got installed it's okay) and change the file that can be found in the new environment: `.venv/lib/python[your_version]/site-packages/lhereader/__init__.py` by the file found in `EFT2Obs/scripts/lhereader/__init__.py`.
+
+Further packages might need to be installed like:
+
+```
+pip install pyarrow
+```
+Once the environment has been set up it is possible to run `produce_plots_lhe.py` to start producing plots. To optimize the plotting time it is necessary to start by loading the events into parquet files. (Note that the parquet path is for now hardcoded)
+
+```
+ python3 scripts/produce_plots_lhe.py --parquet --file chg_cpv_H2j 
+```
+
+And once the parquet file has been created it is possible plot the observables:
+
+```
+python3 scripts/produce_plots_lhe.py --file chg_cpv_H2j --output test-ggF-H
+```
+
+
 
 
 

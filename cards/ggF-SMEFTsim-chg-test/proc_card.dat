@@ -1,0 +1,7 @@
+import model SMEFTsim_topU3l_MwScheme_UFO-cpv
+
+define j2 = u c d s u~ c~ d~ s~
+
+generate p p > h j j / j2 l+ l- vl vl~ h a W+ W- Z NP<=0 @0
+
+output ggF-SMEFTsim-chg-test
