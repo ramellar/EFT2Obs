@@ -434,14 +434,14 @@ The following limitations currently apply. Links to GitHub issues indicate which
 
 ## Reading LHE files 
 
-If the LHE files are directly saved, in order to plots from these, some dedicated scripts can be found in `EFT2Obs/scripts`. These use the [lhereader](https://pypi.org/project/lhereader/) package and to run them it is necessary to install an python environment:
+If the LHE files are directly saved, in order to plot from these, some dedicated scripts can be found in `EFT2Obs/scripts`. These use the [lhereader](https://pypi.org/project/lhereader/) package and to run them it is necessary to install a python environment:
 
 ```
 virtualenv --python=$(which python3) .venv
 source ./.venv/bin/activate
 pip install lhereader
 ```
-Once this step has finished and lhereader is installed (it is possible that a few warnings or warnings appear, but if the package got installed it's okay) and change the file that can be found in the new environment: `.venv/lib/python[your_version]/site-packages/lhereader/__init__.py` by the file found in `EFT2Obs/scripts/lhereader/__init__.py`.
+Once this step has finished and lhereader is installed (it is possible that a few warnings or errors appear, but if the package got installed it's okay) and change the file that can be found in the new environment: `.venv/lib/python[your_version]/site-packages/lhereader/__init__.py` by the file found in `EFT2Obs/scripts/lhereader/__init__.py`.
 
 Further packages might need to be installed like:
 
@@ -454,7 +454,7 @@ Once the environment has been set up it is possible to run `produce_plots_lhe.py
  python3 scripts/produce_plots_lhe.py --parquet --file chg_cpv_H2j 
 ```
 
-And once the parquet file has been created it is possible plot the observables:
+And once the parquet file has been created it is possible to plot the observables:
 
 ```
 python3 scripts/produce_plots_lhe.py --file chg_cpv_H2j --output test-ggF-H
