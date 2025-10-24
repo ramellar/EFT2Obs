@@ -26,7 +26,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     if args.parquet:
-        filenames = glob.glob("/home/llr/cms/amella/EFT2Obs/test-ggF-H/events/events_*_nonp.lhe")
+        filenames = glob.glob("/data_CMS/cms/amella/EFT2Obs/lhe_files/ggF-H-chg/events/events_*_nonp.lhe")
         total_files = len(filenames)
 
         print(f"Found {total_files} LHE files to process.")
@@ -68,7 +68,7 @@ if __name__ == '__main__':
         ('chg= 0.01', events_weights[:]['rw0002'], my_cmap(2)),
         ('chg= 0.015', events_weights[:]['rw0003'], my_cmap(3)),
         ('chg= 0.02', events_weights[:]['rw0004'], my_cmap(4)),
-        ]
+    ]
 
 
     # weight_dataset= [
@@ -80,11 +80,11 @@ if __name__ == '__main__':
     #     ('No weights', None, my_cmap(5)),
     #     ]
 
-
+    ylabel="chg/chg=0"
     ## Plotting the pt of the the particles in the event
     higgs_mask= events.pdgid == 25
     higgs_pt = events.p4.pt[higgs_mask]
-    lhe.plot_awkward_hist_ratio(higgs_pt, weight_dataset, bins=20, range=(0, 1000), xlabel=r"$ p_T (H) $", log= True)
+    lhe.plot_awkward_hist_ratio_histlib(higgs_pt, weight_dataset, bins=20, range_=(0, 1000), xlabel=r"$ p_T (H) $", ylabel=ylabel, log=True)
     plt.savefig(plot_dir +"higgs_pt.png")
     plt.savefig(plot_dir +"higgs_pt.pdf")
     print("Saved Figure: "+ plot_dir +"higgs_pt.png")
@@ -96,18 +96,18 @@ if __name__ == '__main__':
     # print(particles_pt)
     sorted_particles_pt = particles_pt[sort_indices]
     # print(sorted_particles_pt)
-    lhe.plot_awkward_hist_ratio(sorted_particles_pt[:,0], weight_dataset, bins=20, range=(0, 400), xlabel=r"$ p_T (jet0) $", log= True)
+    lhe.plot_awkward_hist_ratio_histlib(sorted_particles_pt[:,0], weight_dataset, bins=20, range_=(0, 400), xlabel=r"$ p_T (jet0) $", ylabel=ylabel,log= True)
     plt.savefig(plot_dir +"jet0_pt.png")
     plt.savefig(plot_dir +"jet0_pt.pdf")
     print("Saved Figure: "+ plot_dir +"jet0_pt.png")
-    lhe.plot_awkward_hist_ratio(sorted_particles_pt[:,1], weight_dataset, bins=20, range=(0, 400), xlabel=r"$ p_T (jet1) $", log= True)
+    lhe.plot_awkward_hist_ratio_histlib(sorted_particles_pt[:,1], weight_dataset, bins=20, range_=(0, 400), xlabel=r"$ p_T (jet1) $", ylabel=ylabel,log= True)
     plt.savefig(plot_dir +"jet1_pt.png")
     plt.savefig(plot_dir +"jet1_pt.pdf")
     print("Saved Figure: "+ plot_dir +"jet1_pt.png")
 
     combined_p4_jets = ak.sum(events.p4[particle_mask], axis=1)
 
-    lhe.plot_awkward_hist_ratio(combined_p4_jets.mass, weight_dataset, bins=20, range=(0, 1000), xlabel=r"$ M (jet0, jet1) $", log= True)
+    lhe.plot_awkward_hist_ratio_histlib(combined_p4_jets.mass, weight_dataset, bins=20, range_=(0, 1000), xlabel=r"$ M (jet0, jet1) $",ylabel=ylabel, log= True)
     plt.savefig(plot_dir +"mass_jets.png")
     plt.savefig(plot_dir +"mass_jets.pdf")
     print("Saved Figure: "+ plot_dir +"mass_jets.png")
@@ -118,7 +118,7 @@ if __name__ == '__main__':
 
     jets_ordered= phi[sort_indices]
     delta_phi = lhe.delta_phi(jets_ordered[:,0], jets_ordered[:,1])
-    lhe.plot_awkward_hist_ratio(delta_phi, weight_dataset, bins=20, range=(-np.pi, np.pi), xlabel=r"$ \Delta \phi (jet0-jet1) $", log=True)
+    lhe.plot_awkward_hist_ratio_histlib(delta_phi, weight_dataset, bins=20, range_=(-np.pi, np.pi), xlabel=r"$ \Delta \phi (jet0-jet1) $", ylabel=ylabel,log=True)
     plt.savefig(plot_dir +"dphi_jets.png")
     plt.savefig(plot_dir +"dphi_jets.pdf")
     print("Saved Figure: "+ plot_dir +"dphi_jets.png")
@@ -128,15 +128,15 @@ if __name__ == '__main__':
     dR = lhe.calcDeltaR(eta[:,0], eta[:,1], phi[:,0], phi[:,1])
     events_weights = events.weights
 
-    lhe.plot_awkward_hist_ratio(abs_dphi, weight_dataset, bins=20, range=(0, np.pi), xlabel=r"$ | \Delta \phi (jet0-jet1) |$", log=True)
+    lhe.plot_awkward_hist_ratio_histlib(abs_dphi, weight_dataset, bins=20, range_=(0, np.pi), xlabel=r"$ | \Delta \phi (jet0-jet1) |$",ylabel=ylabel, log=True)
     plt.savefig(plot_dir +"dphi_abs_jets.png")
     plt.savefig(plot_dir +"dphi_abs_jets.pdf")
     print("Saved Figure: "+ plot_dir +"dphi_abs_jets.png")
-    lhe.plot_awkward_hist_ratio(deta, weight_dataset, bins=20, range=(ak.min(deta), ak.max(deta)), xlabel=r"$ | \Delta \eta (jet0-jet1) |$", log=True)
+    lhe.plot_awkward_hist_ratio_histlib(deta, weight_dataset, bins=20, range_=(ak.min(deta), ak.max(deta)), xlabel=r"$ | \Delta \eta (jet0-jet1) |$", ylabel=ylabel,log=True)
     plt.savefig(plot_dir +"deta_jets.png")
     plt.savefig(plot_dir +"deta_jets.pdf")
     print("Saved Figure: "+ plot_dir +"deta_jets.png")
-    lhe.plot_awkward_hist_ratio(dR, weight_dataset, bins=20, range=(ak.min(dR), ak.max(dR)), xlabel=r"$ \Delta R (jet0-jet1) $", log=True)
+    lhe.plot_awkward_hist_ratio_histlib(dR, weight_dataset, bins=20, range_=(ak.min(dR), ak.max(dR)), xlabel=r"$ \Delta R (jet0-jet1) $",ylabel=ylabel, log=True)
     plt.savefig(plot_dir +"dR_jets.png")
     plt.savefig(plot_dir +"dR_jets.pdf")
     print("Saved Figure: "+ plot_dir +"dR_jets.png")

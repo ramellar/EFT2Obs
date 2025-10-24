@@ -467,6 +467,7 @@ And once the parquet file has been created it is possible to plot the observable
 python3 scripts/produce_plots_lhe.py --file chg_cpv_H2j --output test-ggF-H
 ```
 
+Note: for the ratio plots, the first element of `weight_dataset` in `produce_plots_lhe` will be the denominator. Therefore, if the goal is to compare different histograms to the nominal one, the first element of `weight_dataset` needs to be the one having the weights corresponding to `wilson_coeff=0` .
 
 
 

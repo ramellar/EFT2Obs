@@ -7,6 +7,12 @@ import matplotlib.pyplot as plt
 import awkward as ak
 import numpy as np
 import mplhep
+import hist
+from hist import Hist
+import numpy as np
+import matplotlib.pyplot as plt
+import mplhep as hep
+
 mpl.rcParams['figure.dpi'] = 300
 
 def printProgressBar(iteration, total, prefix = '', suffix = '', decimals = 1, length = 100, fill = '█', printEnd = "\r"):
@@ -70,6 +76,102 @@ def calcDeltaR(part1_eta, part2_eta, part1_phi, part2_phi):
     return deltaR
 
 
+def plot_awkward_hist_ratio_histlib(
+    data,
+    weights_dataset,
+    bins=50,
+    range_=(0, 10),
+    xlabel="",
+    ylabel="Ratio",
+    alpha=1,
+    figsize=(10, 10),
+    log=False,
+):
+    
+    flat_data = np.asarray(ak.flatten(data, axis=-1))
+    hep.style.use("CMS")
+
+    h_template = (
+        Hist.new
+        .Reg(bins, *range_, name="x", label=xlabel, underflow=False, overflow=False)
+        .Weight()
+    )
+
+    #Filling histograms to plot
+    histograms = []
+
+    for i, (label, weights, color) in enumerate(weights_dataset):
+        h = h_template.copy()
+        h.fill(x=flat_data, weight=weights)
+        histograms.append((label, color, h))
+
+    ref_label, ref_color, h_ref = histograms[0]
+    bin_edges = h_ref.axes[0].edges
+
+    #Creating figures
+
+    fig, (ax, ax_ratio) = plt.subplots(
+        2, 1,
+        sharex=True,
+        figsize=figsize,
+        gridspec_kw={'height_ratios': [3, 1], 'hspace': 0.05}
+    )
+    mplhep.cms.label('Private Work', data=False, ax=ax)
+
+
+    # Plot all histograms on main axis
+    for label, color, h in histograms:
+        hep.histplot(
+                h,
+                histtype="step",
+                label=f"{label}",
+                ax=ax,
+                color=color,
+                alpha=alpha,
+                linewidth=2,
+            )
+    
+
+    ax.set_ylabel("Events")
+    ax.legend(fontsize=18)
+    ax.set_xlabel("")
+    ax.grid(linestyle=':')
+    if log:
+        ax.set_yscale("log")
+
+    for label, color, h in histograms[1:]:
+
+        # The method "sqrt" is used giving the Poisson standard deviation (symmetric uncertainties) derived from the variance stored in the histogram object
+        # Since this object is a from the Hist library that has been initialized using .Weight(), the variance stored is the (sum of weights)^2
+        ratio, err_up, err_down = hep.get_comparison(
+                h,
+                h_ref,
+                comparison="ratio",
+                h1_w2method="sqrt",
+            )
+
+
+        hep.histplot(
+                ratio,
+                bins=bin_edges,
+                yerr=err_up,
+                histtype="errorbar",
+                label=f"{label}/{ref_label}",
+                ax=ax_ratio,
+                alpha=alpha,
+                color=color,
+            )
+
+
+    ax_ratio.axhline(1.0, color="black", linestyle="--", linewidth=1)
+    ax_ratio.set_ylabel(ylabel)
+    ax_ratio.set_xlabel(xlabel)
+    ax_ratio.grid(linestyle=':')
+
+    # plt.tight_layout()
+
+#To plot without wrror bars just the histogram, to add them, the hostogram should be defined using Hist library (in order to account for the weights)
+
 def plot_awkward_hist(data, weights_dataset ,bins=50, range=[0,10], xlabel="", ylabel="Events", alpha=1, figsize=(10,10), log=False):
 
     # Flatten in case data is jagged
@@ -89,71 +191,3 @@ def plot_awkward_hist(data, weights_dataset ,bins=50, range=[0,10], xlabel="", y
         plt.yscale("log")
     plt.grid(linestyle=':')
     plt.tight_layout()
-
-
-import numpy as np
-import matplotlib.pyplot as plt
-import mplhep as hep
-
-def plot_awkward_hist_ratio(data, weights_dataset ,bins=50, range=[0,10], xlabel="", ylabel="Events", alpha=0.7, figsize=(10,10), log=False):
-
-    flat_data = ak.flatten(data, axis=-1)
-    flat_data = np.asarray(flat_data)
-    hep.style.use("CMS")
-
-    # plt.figure(figsize=figsize, dpi=300)
-
-    fig, (ax, rax) = plt.subplots(
-        2, 1,
-        sharex=True,
-        figsize=figsize,
-        gridspec_kw={'height_ratios': [3, 1], 'hspace': 0.05}
-    )
-    hep.cms.label("Private Work", data=False, ax=ax)
-
-    histograms = []
-    ref_index = 0  # Index of the reference histogram for ratio plot
-
-    for label, weights, color in weights_dataset:
-        # plt.hist(flat_data, bins=bins, range=range, color=color, alpha=alpha,label=label, weights=weights, histtype='step', linewidth=1.5)
-        hist, bin_edges = np.histogram(flat_data,bins=bins, range=range, weights=weights)
-        hep.histplot(hist, bin_edges,histtype="step",label=label,color=color,ax=ax,alpha=alpha,linewidth=2, yerr=True)
-        # hep.histplot(hist, range=range, label=label, ax=ax, histtype='step', weights=weights)
-        histograms.append(hist)
-
-    # ax.set_xlabel(xlabel)
-    ax.set_ylabel(ylabel)
-    ax.legend(fontsize=18)
-
-    if log:
-        ax.set_yscale("log")
-    ax.grid(linestyle=':')
-    
-    # --- Ratio plots ---
-    # print("histograms", histograms)
-    ref_hist = histograms[ref_index]
-    # print("ref_hist", ref_hist)
-    ref_label = weights_dataset[ref_index][0]
-
-    for i, (label, weights, color) in enumerate(weights_dataset):
-        if i == ref_index:
-            continue
-        ratio = np.divide(histograms[i], ref_hist)
-        hep.histplot(
-            ratio,
-            bin_edges,
-            histtype="errorbar",
-            label=f"{label}/{ref_label}",
-            color=color,
-            ax=rax,
-            linewidth=2,
-        )
-
-    rax.axhline(1.0, color='black', linestyle='--')
-    rax.set_ylabel("chg/chg=0")
-    rax.set_xlabel(xlabel)
-    rax.set_ylim(0.5, 1.5)
-    rax.grid(linestyle=':')
-
-    # plt.tight_layout()
-    # plt.show()
